@@ -17,6 +17,7 @@ class Categories extends Migration
             $table->id();
             $table->string('cname');
             $table->string('active');
+            $table->softDeletes(); 
             $table->timestamps();
         });
     }

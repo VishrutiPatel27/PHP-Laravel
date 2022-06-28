@@ -62,7 +62,8 @@
     </tr>
     @endforeach
 </table>
-</div>
-
 {!! $data->links() !!}
 @endsection
+</div>
+
+

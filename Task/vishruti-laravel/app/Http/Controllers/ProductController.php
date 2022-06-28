@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
-// use App\Models\User;
+
 class ProductController extends Controller
 {
    
@@ -19,15 +19,22 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
+
     {
-        $data = Product::latest()->paginate(3);
-        $datanew['newdata'] = " ";
-        $data1 = Category::get('cname');
+        $data1 = Category::where('active','Yes')->get('cname');
+        // $data1 = Category::get('cname');
+        if ($request->has('trashed')) {
 
-        return view('product.index',compact('data','datanew','data1'))
-            ->with('i', (request()->input('page', 1) - 1) * 3);
+            $data = Product::onlyTrashed()->get();
 
+        } else {
+
+            $data = Product::get();
+
+        }
+
+        return view('product.index', compact('data','data1'));
 
     }
 
@@ -71,14 +78,10 @@ class ProductController extends Controller
 
         Product::create($product);
 
-       
-
         return redirect()->route('product.index')
 
                         ->with('success','Product Added successfully.');
    
-    
-
                 
     }
 
@@ -101,9 +104,10 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
+
         $data = Category::get('cname');
         return view('product.edit',compact('product','data'));
-    }
+    } 
 
     /**
      * Update the specified resource in storage.
@@ -114,7 +118,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //$product= Product::find($id);
+      
         if($request->file('image')){
 
             unlink(public_path('public/images/'.$product->images));
@@ -124,9 +128,7 @@ class ProductController extends Controller
             $product->name = $request->name;
             $product->category_id = $request->category;
             $product->active = $request->active;
-            // $product=$request->all(); 
-
-            // $product['createdbyuser']=$user->id;
+           
             $product['image'] = $imageName;
             $product->update();
             return redirect('product')->with('success','Product updated successfully.');
@@ -136,7 +138,7 @@ class ProductController extends Controller
             $product->name = $request->name;
             $product->category_id = $request->category;
             $product->active = $request->active;
-            // $product['createdbyuser']=$user->id;
+            
             $product->update();
             return redirect('product') ->with('success','Product updated successfully.');
 
@@ -153,9 +155,45 @@ class ProductController extends Controller
     {
         
         $product->delete();
-        // User::find($product)->delete();
-        return redirect()->route('product.index')
-                        ->with('success','Product deleted successfully');
+        return redirect()->route('product.index')->with('success','Product deleted successfully');
     
+    }
+
+      /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function delete(Product $product, $id)
+    {       
+        Product::onlyTrashed()->find($id)->forceDelete();
+        //$product->delete();
+        return redirect()->back()->with('success','Product deleted successfully');
+    
+    }
+    /**
+     * restore specific post
+     *
+     * @return void
+     */
+    public function restore($id)
+    {
+        //$product->forceDelete();
+        Product::withTrashed()->find($id)->restore();
+        return redirect()->back();
+    }
+     /**
+     * restore all post
+     *
+     * @return response()
+     */
+    public function restoreAll()
+
+    {
+
+        Product::onlyTrashed()->restore();
+        return redirect()->back();
+
     }
 }

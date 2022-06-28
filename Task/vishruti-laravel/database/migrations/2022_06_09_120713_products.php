@@ -20,6 +20,7 @@ class Products extends Migration
             $table->string('image');
             $table->string('user_id');
             $table->enum('active',['yes','no']);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

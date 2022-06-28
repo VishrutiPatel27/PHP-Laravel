@@ -18,13 +18,24 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data = Category::latest()->paginate(3);
-        $datanew['newdata'] = " ";
+        // $data = Category::latest()->paginate(3);
+        // $datanew['newdata'] = " ";
 
-        return view('category.index',compact('data','datanew'))
-            ->with('i', (request()->input('page', 1) - 1) * 3);
+        if ($request->has('trashed')) {
+
+            $data = Category::onlyTrashed()->get();
+
+        } else {
+
+            $data = Category::get();
+
+        }
+        return view('category.index', compact('data'));
+
+        // return view('category.index',compact('data','datanew'))
+        //     ->with('i', (request()->input('page', 1) - 1) * 3);
     }
 
     /**
@@ -122,5 +133,42 @@ class CategoryController extends Controller
     
         return redirect()->route('category.index')
                         ->with('success','Category deleted successfully');
+    }
+      /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function delete(category $category, $id)
+    {       
+        Category::onlyTrashed()->find($id)->forceDelete();
+       
+        return redirect()->back()->with('success','Category deleted successfully');
+    
+    }
+
+    /**
+     * restore specific post
+     *
+     * @return void
+     */
+    public function restore($id)
+    {
+        Category::withTrashed()->find($id)->restore();
+        return redirect()->back();
+    }
+     /**
+     * restore all post
+     *
+     * @return response()
+     */
+    public function restoreAll()
+
+    {
+
+        Category::onlyTrashed()->restore();
+        return redirect()->back();
+
     }
 }

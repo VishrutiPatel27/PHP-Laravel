@@ -29,8 +29,6 @@ class HomeController extends Controller
         return response()->json($products);
         }
 
-
-
         }
 
     /**
@@ -40,6 +38,6 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        return view('home'); 
     }
 }
