@@ -33,7 +33,7 @@ Route::resource('/category', CategoryController::class);
 Route::resource('/product',ProductController::class);
 Route::get('product/delete/{id}', [ProductController::class, 'delete'])->name('product.delete');
 
-
+//Route::get('product/destroy/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
 
 Route::get('/',[App\Http\Controllers\WelcomeController::class,'index']);
 
