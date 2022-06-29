@@ -26,8 +26,9 @@ use App\Http\Controllers\WelcomeController;
 
 Route::resource('/admin',AdminController::class);
 
+
 Route::resource('/category', CategoryController::class);
-Route::get('category/delete/{id}', [ProductController::class, 'delete'])->name('category.delete');
+ Route::get('category/delete/{id}', [CategoryController::class, 'delete'])->name('category.delete');
 
 Route::resource('/product',ProductController::class);
 Route::get('product/delete/{id}', [ProductController::class, 'delete'])->name('product.delete');
@@ -42,9 +43,6 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::get('/filterProduct', [App\Http\Controllers\HomeController::class, 'filterProduct']);
 
-Route::get('product/restore/{id}', [ProductController::class, 'restore'])->name('product.restore');
-Route::get('product/restore-all', [ProductController::class, 'restoreAll'])->name('product.restoreAll');
+Route::get('/category/restore/{id}', [App\Http\Controllers\CategoryController::class,'restore'])->name('category.restore');
 
-Route::get('category/restore/{id}', [CategoryController::class, 'restore'])->name('category.restore');
-Route::get('category/restore-all', [CategoryController::class, 'restoreAll'])->name('category.restoreAll');
-
+Route::get('/product/restore/{id}', [App\Http\Controllers\ProductController::class,'restore'])->name('product.restore');

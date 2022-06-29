@@ -22,20 +22,20 @@ class ProductController extends Controller
     public function index(Request $request)
 
     {
-        $data1 = Category::where('active','Yes')->get('cname');
-        // $data1 = Category::get('cname');
-        if ($request->has('trashed')) {
-
-            $data = Product::onlyTrashed()->get();
-
-        } else {
-
-            $data = Product::get();
+        if($request->has('trashed'))
+        {
+            $data = Product::Where('active','yes')->onlyTrashed()->paginate(5);
 
         }
 
-        return view('product.index', compact('data','data1'));
+        else 
+        {
+                        $data=Product::latest()->paginate(5);
 
+            $data = Product::Where('active','yes')->withoutTrashed()->paginate(5);
+        }
+
+        return view('product.index',compact('data'))->with('i',(request()->input('page',1)-1)*5);
     }
 
     /**
@@ -45,7 +45,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $data = Category::where('active','Yes')->get('cname');
+        $data = Category::where('active','Yes')->get();
         return view('product.create',compact('data'));
         
     }
@@ -78,23 +78,12 @@ class ProductController extends Controller
 
         Product::create($product);
 
-        return redirect()->route('product.index')
-
-                        ->with('success','Product Added successfully.');
+        return redirect()->route('product.index')->with('success','Product Added successfully.');
    
                 
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+   
 
     /**
      * Show the form for editing the specified resource.
@@ -105,7 +94,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
 
-        $data = Category::get('cname');
+        $data = Category::get();
         return view('product.edit',compact('product','data'));
     } 
 
@@ -151,49 +140,26 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Product $product)
+    public function destroy($id)
     {
         
-        $product->delete();
+        Product::find($id)->delete();
         return redirect()->route('product.index')->with('success','Product deleted successfully');
     
     }
 
-      /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function delete(Product $product, $id)
-    {       
+    public function delete(Request $request,$id)
+    {
         Product::onlyTrashed()->find($id)->forceDelete();
-        //$product->delete();
-        return redirect()->back()->with('success','Product deleted successfully');
-    
+        return redirect()->back()->with('success','Product Deleted successfully');
     }
-    /**
-     * restore specific post
-     *
-     * @return void
-     */
-    public function restore($id)
+
+
+    public function restore(Request $request,$id)
     {
-        //$product->forceDelete();
-        Product::withTrashed()->find($id)->restore();
-        return redirect()->back();
+        
+        Product::onlyTrashed()->find($id)->restore();
+        return redirect()->route('product.index')->with('success','Product Restored successfully');
     }
-     /**
-     * restore all post
-     *
-     * @return response()
-     */
-    public function restoreAll()
-
-    {
-
-        Product::onlyTrashed()->restore();
-        return redirect()->back();
-
-    }
+      
 }

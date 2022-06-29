@@ -20,22 +20,17 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        // $data = Category::latest()->paginate(3);
-        // $datanew['newdata'] = " ";
-
-        if ($request->has('trashed')) {
-
-            $data = Category::onlyTrashed()->get();
-
-        } else {
-
-            $data = Category::get();
-
+        if($request->has('trashed'))
+        {
+            $data= Category::onlyTrashed()->paginate(5);
         }
-        return view('category.index', compact('data'));
+        else
+        {
+            $data= Category::withoutTrashed()->paginate(5);
+        }
 
-        // return view('category.index',compact('data','datanew'))
-        //     ->with('i', (request()->input('page', 1) - 1) * 3);
+        $datanew['newdata']="";
+        return view('category.index',compact('data', 'datanew'))->with('i',(request()->input('page',1)-1)*5);
     }
 
     /**
@@ -128,47 +123,27 @@ class CategoryController extends Controller
      * 
      */
     public function destroy(Category $category)
-    {
+
+    {      
+
         $category->delete();
-    
-        return redirect()->route('category.index')
-                        ->with('success','Category deleted successfully');
+        return redirect()->route('category.index')->with('success','Category deleted successfully');
+
     }
-      /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function delete(category $category, $id)
-    {       
+   
+
+    public function delete(Request $request,$id)
+    {
         Category::onlyTrashed()->find($id)->forceDelete();
-       
-        return redirect()->back()->with('success','Category deleted successfully');
-    
+        return redirect()->back()->with('success','Category Deleted successfully');
     }
 
-    /**
-     * restore specific post
-     *
-     * @return void
-     */
-    public function restore($id)
+
+    public function restore(Request $request,$id)
     {
-        Category::withTrashed()->find($id)->restore();
-        return redirect()->back();
+        Category::onlyTrashed()->find($id)->restore();
+        return redirect()->route('category.index')->with('success','Category restored successfully');
     }
-     /**
-     * restore all post
-     *
-     * @return response()
-     */
-    public function restoreAll()
-
-    {
-
-        Category::onlyTrashed()->restore();
-        return redirect()->back();
-
-    }
+   
+   
 }

@@ -11,6 +11,17 @@
         <div class="pull-right" style=" float : right;">
             <a class="btn btn-warning" href="category/create">Add New Category</a>
             <a class="btn btn-primary" href="{{ route('product.index') }}"> Back</a>
+
+            @if(request()->has('trashed'))
+
+<a href="{{ route('category.index') }}" class="btn btn-info">View All products</a>
+
+
+@else
+
+<a href="{{ route('category.index', ['trashed' => 'categories']) }}" class="btn btn-primary">Deleted</a>
+
+@endif
         </div>
     </div>
 </div>
@@ -30,40 +41,34 @@
     </tr>
     @foreach($data as $key => $value)
     <tr>
-        <td>{{$value->id }}</td>
+        <td>{{ ++$i }}</td>
         <td>{{ $value->cname }}</td>
         <td>{{ $value->active }}</td>
         <td>
-                    @if(request()->has('trashed'))
-                    <form action="{{ route('category.delete',$value->id) }}" method="GET">
-                    <a href="{{ route('category.restore', $value->id) }}" class="btn btn-success">Restore</a>
-                    @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger delete">Delete</button>
-                    @else
+                  
             <form action="{{ route('category.destroy',$value->id) }}" method="POST">
-
+                @if(request()->has('trashed'))
+                <a class="btn btn-info" href="{{ route('category.restore',$value->id)}}">Restore</a>
+                @else
             <a class="btn btn-primary" href="{{ route('category.edit',$value->id) }}">Edit</a>  
+            @endif
+
+            @if(request()->has('trashed'))
+            <a class="btn btn-danger" href="{{ route('category.delete',$value->id) }}">Delete</a>
+            @else
                 @csrf
                 @method('DELETE')
                 
                 <button type="submit" class="btn btn-danger">Delete</button>
-                
+                @endif
             </form>
-            @endif
+           
         </td>
     </tr>
     @endforeach
 </table>
+{!! $data->links() !!}
 
-<div class="float-end" style="text-align:right;">
-        @if(request()->has('trashed'))
-            <a href="{{ route('category.index') }}" class="btn btn-info">View All Category</a>
-            <a href="{{ route('category.restoreAll') }}" class="btn btn-success">Restore All</a>
-        @else
-            <a href="{{ route('category.index', ['trashed' => 'category']) }}" class="btn btn-primary">View Deleted Category</a>
-        @endif
-    </div>
 
 </div>
 @endsection

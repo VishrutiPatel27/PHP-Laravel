@@ -17,7 +17,7 @@ class WelcomeController extends Controller
     {
         $data = Product::latest()->paginate(3);
         $datanew['newdata'] = " ";
-        $data1 = Category::get('cname');
+        $data1 = Category::get();
 
         return view('welcome',compact('data','data1','datanew'))
             ->with('i', (request()->input('page', 1) - 1) * 3);
